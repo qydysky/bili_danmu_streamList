@@ -99,16 +99,6 @@ export default {
                                 })
                             })
                             .finally(()=>{
-                                that.tableData.push({
-                                    startLiveT: element.startLiveT,
-                                    format:element.format,
-                                    uname: element.uname,
-                                    name: element.name,
-                                    path: element.path,
-                                    qn: element.qn,
-                                    avgOnline: max(element.onlinesPerMin),
-                                    startT: element.startT
-                                })
                                 if(result2.length>0)that.tableData.push({
                                     startLiveT: element.startLiveT,
                                     format:element.format,
@@ -120,6 +110,18 @@ export default {
                                     startT: element.startT,
                                     hot: result2
                                 })
+                                else {
+                                    that.tableData.push({
+                                        startLiveT: element.startLiveT,
+                                        format:element.format,
+                                        uname: element.uname,
+                                        name: element.name,
+                                        path: element.path,
+                                        qn: element.qn,
+                                        avgOnline: max(element.onlinesPerMin),
+                                        startT: element.startT
+                                    })
+                                }
                             })
                     }
                 } else {
