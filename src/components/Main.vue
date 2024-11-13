@@ -81,14 +81,15 @@ export default {
                                 let c = false
                                 let s = 0
                                 let ss = 0
-                                if(result.length==1)result2.push({st:result[0],dur:1,path:element.path,format:element.format})
+                                let m = a => a>0.5?a-0.5:a
+                                if(result.length==1)result2.push({st:m(result[0]),dur:1.5,path:element.path,format:element.format})
                                 else result.reduce((a,b)=>{
                                     if(a!=b-1){
                                         if(c){
-                                            result2.push({st:s,dur:ss,path:element.path,format:element.format})
+                                            result2.push({st:m(s),dur:ss+0.5,path:element.path,format:element.format})
                                             c = false
                                             ss = 0
-                                        } else result2.push({st:a,dur:1,path:element.path,format:element.format})
+                                        } else result2.push({st:m(a),dur:1.5,path:element.path,format:element.format})
                                     } else {
                                         if(!c)s = a
                                         c = true
@@ -150,7 +151,11 @@ export default {
                         highlight-current-row
                         :default-sort="{ prop: 'startT', order: 'descending' }"
                     >
-                        <el-table-column label="标题">
+                        <el-table-column 
+                            label="标题" 
+                            width="300"
+                            show-overflow-tooltip
+                        >
                             <template #default="scope">
                                 <el-link @click.prevent="rowClick(scope.row)">{{ scope.row.name }}</el-link>
                             </template>
@@ -184,4 +189,3 @@ export default {
         </el-col>
     </el-row>
 </template>
-
