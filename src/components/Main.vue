@@ -59,47 +59,58 @@ export default {
         let that = this
         axios.get('filePath')
             .then(function (response) {
-                let res = response.data
-                let max = array => (array&&array.length>0)?Math.round(array.reduce((a,b)=>a>b?a:b)):0;
-                if (res.code == 0) {
-                    for (let index = 0; res.data && index < res.data.length; index++) {
-                        const element = res.data[index];
-
+                const sleep = ms => new Promise(r => setTimeout(r, ms));
+                const load = async (data) => {
+                    for (let index = 0; data && index < data.length; index++) {
+                        const element = data[index]
+                        
                         let result2 = []
-                        axios.get('danmuCountPerMin?ref='+element.path)
-                            .then(function (response) {
-                                if(!response || response.length==0 || !response.data || response.data.length==0)return
-                                let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
-                                let avgC = avg(response.data) 
-                                let result = []
-                                response.data.forEach((v,k)=>{
-                                    if(v>=avgC*1.5){
-                                        result.push(k)
-                                    }
-                                })
-                                if(result.length==0)return
-                                let c = false
-                                let s = 0
-                                let ss = 0
-                                let m = a => a>0.5?a-0.5:a
-                                if(result.length==1)result2.push({st:m(result[0]),dur:1.5,path:element.path,format:element.format})
-                                else result.reduce((a,b)=>{
-                                    if(a!=b-1){
-                                        if(c){
-                                            result2.push({st:m(s),dur:ss+0.5,path:element.path,format:element.format})
-                                            c = false
-                                            ss = 0
-                                        } else result2.push({st:m(a),dur:1.5,path:element.path,format:element.format})
-                                    } else {
-                                        if(!c)s = a
-                                        c = true
-                                        ss += 1
-                                    }
-                                    return b
-                                })
+                        await axios.get('danmuCountPerMin?ref='+element.path)
+                        .then(function (response) {
+                            if(!response || response.length==0 || !response.data || response.data.length==0)return
+                            let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
+                            let avgC = avg(response.data) 
+                            let result = []
+                            response.data.forEach((v,k)=>{
+                                if(v>=avgC*1.5){
+                                    result.push(k)
+                                }
                             })
-                            .finally(()=>{
-                                if(result2.length>0)that.tableData.push({
+                            if(result.length==0)return
+                            let c = false
+                            let s = 0
+                            let ss = 0
+                            let m = a => a>0.5?a-0.5:a
+                            if(result.length==1)result2.push({st:m(result[0]),dur:1.5,path:element.path,format:element.format})
+                            else result.reduce((a,b)=>{
+                                if(a!=b-1){
+                                    if(c){
+                                        result2.push({st:m(s),dur:ss+0.5,path:element.path,format:element.format})
+                                        c = false
+                                        ss = 0
+                                    } else result2.push({st:m(a),dur:1.5,path:element.path,format:element.format})
+                                } else {
+                                    if(!c)s = a
+                                    c = true
+                                    ss += 1
+                                }
+                                return b
+                            })
+                        })
+                        .finally(()=>{
+                            if(result2.length>0)that.tableData.push({
+                                startLiveT: element.startLiveT,
+                                format:element.format,
+                                uname: element.uname,
+                                name: element.name,
+                                path: element.path,
+                                qn: element.qn,
+                                avgOnline: max(element.onlinesPerMin),
+                                startT: element.startT,
+                                hot: result2
+                            })
+                            else {
+                                that.tableData.push({
                                     startLiveT: element.startLiveT,
                                     format:element.format,
                                     uname: element.uname,
@@ -107,26 +118,19 @@ export default {
                                     path: element.path,
                                     qn: element.qn,
                                     avgOnline: max(element.onlinesPerMin),
-                                    startT: element.startT,
-                                    hot: result2
+                                    startT: element.startT
                                 })
-                                else {
-                                    that.tableData.push({
-                                        startLiveT: element.startLiveT,
-                                        format:element.format,
-                                        uname: element.uname,
-                                        name: element.name,
-                                        path: element.path,
-                                        qn: element.qn,
-                                        avgOnline: max(element.onlinesPerMin),
-                                        startT: element.startT
-                                    })
-                                }
-                            })
+                            }
+                        })
+
+                        await sleep(100)
                     }
-                } else {
-                    console.error(res.message)
-                }
+                };
+
+                let res = response.data
+                let max = array => (array&&array.length>0)?Math.round(array.reduce((a,b)=>a>b?a:b)):0;
+                if (res.code == 0)load(res.data)
+                else console.error(res.message)
             })
             .then(function (params) {
                 setTimeout(()=>{
@@ -155,18 +159,18 @@ export default {
                     >
                         <el-table-column 
                             label="标题" 
-                            width="300"
+                            min-width="300"
                             show-overflow-tooltip
                         >
                             <template #default="scope">
                                 <el-link @click.prevent="rowClick(scope.row)">{{ scope.row.name }}</el-link>
                             </template>
                         </el-table-column>
-                        <el-table-column label="主播名" prop="uname"/>
+                        <el-table-column label="主播名" prop="uname" min-width="200px"/>
                         <el-table-column label="画质" prop="qn"/>
                         <el-table-column label="观看人数" prop="avgOnline"/>
-                        <el-table-column label="录制时间" prop="startT"/>
-                        <el-table-column label="本场开始时间" prop="startLiveT"/>
+                        <el-table-column label="录制时间" prop="startT" min-width="200px"/>
+                        <el-table-column label="本场开始时间" prop="startLiveT" min-width="200px"/>
                         <el-table-column label="切片" min-width="300px">
                             <template #default="scope">
                                 <div v-if="!scope.row.hot">
