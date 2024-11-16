@@ -86,7 +86,7 @@ export default {
                             let m = a => a>0.5?a-0.5:a
                             if(result.length==1)result2.push({st:m(result[0]),dur:1.5,path:element.path,format:element.format})
                             else result.reduce((a,b)=>{
-                                if(a!=b-1){
+                                if(a>=b-3){
                                     if(c){
                                         result2.push({st:m(s),dur:ss+0.5,path:element.path,format:element.format})
                                         c = false
@@ -95,7 +95,7 @@ export default {
                                 } else {
                                     if(!c)s = a
                                     c = true
-                                    ss += 1
+                                    ss += 3
                                 }
                                 return b
                             })
