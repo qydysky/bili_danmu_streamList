@@ -1,5 +1,6 @@
 <script>
-import axios from 'axios'
+import Axios from 'axios'
+import { setupCache } from 'axios-cache-interceptor';
 
 export default {
     data() {
@@ -56,6 +57,8 @@ export default {
         },
     },
     mounted() {
+        const instance = Axios.create();
+        const axios = setupCache(instance);
         let that = this
         axios.get('filePath')
             .then(function (response) {
@@ -122,8 +125,6 @@ export default {
                                 })
                             }
                         })
-
-                        await sleep(100)
                     }
                 };
 
