@@ -1,6 +1,23 @@
 <script>
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor';
+const vTableInfiniteScroll = {
+  mounted(el, binding) {
+    let tbody = el.querySelector('.el-table__body-wrapper') // .el-table__body-wrapper 根据版本不同会有区别
+    el.tableInfiniteScrollFn = function () {
+      if (this.scrollHeight - this.scrollTop - parseInt(this.style.height) === 0) {
+        binding.value()
+      }
+    }
+    tbody.addEventListener('scroll', el.tableInfiniteScrollFn)
+    tbody = undefined
+  },
+  unmounted(el, binding) {
+    const tbody = el.querySelector('.el-table__body-wrapper')
+    tbody.removeEventListener('scorll', el.tableInfiniteScrollFn)
+    el.tableInfiniteScrollFn = undefined
+  }
+}
 
 export default {
     data() {
@@ -57,7 +74,6 @@ export default {
             return {rowspan: 1, colspan: 1}
         },
         loadFileList(){
-            this.disabledLoadFileList = true
             const axios = setupCache(Axios.create());
             let that = this
             let url = 'filePath?size=20&skip='+((this.tableData.length>0)?this.tableData.length-1:0)
@@ -68,7 +84,7 @@ export default {
                 const load = async (data) => {
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
-                        
+                        that.disabledLoadFileList = !data || data.length < 20
                         let result2 = []
                         await axios.get('danmuCountPerMin?ref='+element.path)
                         .then(function (response) {
@@ -142,6 +158,7 @@ export default {
         },
     },
     mounted() {
+
         const axios = setupCache(Axios.create());
         let that = this
         axios.get('filePath?size=20')
