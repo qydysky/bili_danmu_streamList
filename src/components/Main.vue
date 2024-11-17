@@ -26,7 +26,6 @@ export default {
                 if(a.startT==b.startT)return 0
                 if(a.startT<b.startT)return -1
             })
-            console.log(data)
             return data
         },
         search: {
@@ -57,7 +56,7 @@ export default {
             return {rowspan: 1, colspan: 1}
         },
         loadFileList(){
-            if(this.loopLoading || this.disabledLoadFileList)return
+            if(this.loopLoading || this.disabledLoadFileList)return console.log("skip")
             this.loopLoading = true
             const axios = setupCache(Axios.create());
             let that = this
@@ -143,7 +142,7 @@ export default {
         },
     },
     mounted() {
-        if(this.loopLoading || this.disabledLoadFileList)return
+        if(this.loopLoading || this.disabledLoadFileList)return console.log("skip")
         this.loopLoading = true
         const axios = setupCache(Axios.create());
         let that = this
