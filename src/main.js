@@ -9,7 +9,7 @@ app.directive( 'vTablescroll', {
         const selectwrap = el.querySelector('.el-scrollbar__wrap')
         if (selectwrap == null) return
         selectwrap.scrollFn = function () {
-        const sign = 0
+        const sign = 50
         const scrollDistance =
             this.scrollHeight - this.scrollTop - this.clientHeight
             if ( scrollDistance <= sign) {
