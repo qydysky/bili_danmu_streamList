@@ -7,7 +7,6 @@ export default {
         return {
             search: "",
             loading: true,
-            disabledLoadFileList: false,
             tableData: []
         }
     },
@@ -55,6 +54,9 @@ export default {
             if(row.colspan && columnIndex == 0)return {rowspan: 1, colspan: 0}
             if(row.colspan && columnIndex == 1)return {rowspan: 1, colspan: 10}
             return {rowspan: 1, colspan: 1}
+        },
+        disabledLoadFileList(){
+            return 
         },
         loadFileList(){
             const axios = setupCache(Axios.create());
@@ -236,7 +238,6 @@ export default {
                     <el-table 
                         v-infinite-scroll="loadFileList"
                         :infinite-scroll-disabled="disabledLoadFileList"
-                        height="90vh" 
                         :data="filterTableData" 
                         :table-layout="auto" 
                         highlight-current-row
