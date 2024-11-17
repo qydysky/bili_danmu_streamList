@@ -140,7 +140,9 @@ export default {
             })
         },
     },
-    mounted() {}
+    mounted() {
+        loadFileList()
+    }
 }
 
 </script>
