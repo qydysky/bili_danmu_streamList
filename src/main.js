@@ -6,7 +6,6 @@ import 'element-plus/dist/index.css'
 const app = createApp(App)
 app.directive( 'vTablescroll', {
 	mounted(el,binding) {
-        console.log(el)
         const selectwrap = el.querySelector('.el-scrollbar__wrap')
         if (selectwrap == null) return
         selectwrap.scrollFn = function () {
