@@ -82,9 +82,9 @@ export default {
             .then(function (response) {
                 const sleep = ms => new Promise(r => setTimeout(r, ms));
                 const load = async (data) => {
+                    that.disabledLoadFileList = !data || data.length < 20
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
-                        that.disabledLoadFileList = !data || data.length < 20
                         let result2 = []
                         await axios.get('danmuCountPerMin?ref='+element.path)
                         .then(function (response) {
