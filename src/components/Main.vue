@@ -242,6 +242,7 @@ export default {
                         :table-layout="auto" 
                         highlight-current-row
                         :default-sort="{ prop: 'startT', order: 'descending' }"
+                        style="height:90vh; overflow: auto"
                     >
                         <el-table-column 
                             label="标题" 
