@@ -4,10 +4,9 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
 const app = createApp(App)
-app.use(ElementPlus)
-app.mount('#app')
 app.directive( 'vTablescroll', {
 	mounted(el,binding) {
+        console.log(el)
         const selectwrap = el.querySelector('.el-scrollbar__wrap')
         if (selectwrap == null) return
         selectwrap.scrollFn = function () {
@@ -27,3 +26,5 @@ app.directive( 'vTablescroll', {
         selectwrap.scrollFn = null
     }
 })
+app.use(ElementPlus)
+app.mount('#app')
