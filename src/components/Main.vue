@@ -56,11 +56,11 @@ export default {
             if(row.colspan && columnIndex == 1)return {rowspan: 1, colspan: 10}
             return {rowspan: 1, colspan: 1}
         },
-        async loadFileList(){
+        loadFileList(){
             const instance = Axios.create();
             const axios = setupCache(instance);
             let that = this
-            await axios.get('filePath?size=20&skip='+this.tableData.length)
+            axios.get('filePath?size=20&skip='+this.tableData.length)
             .then(function (response) {
                 const sleep = ms => new Promise(r => setTimeout(r, ms));
                 const load = async (data) => {
