@@ -158,16 +158,15 @@ export default {
         },
     },
     mounted() {
-
         const axios = setupCache(Axios.create());
         let that = this
         axios.get('filePath?size=20')
         .then(function (response) {
             const sleep = ms => new Promise(r => setTimeout(r, ms));
             const load = async (data) => {
+                that.disabledLoadFileList = !data || data.length < 20
                 for (let index = 0; data && index < data.length; index++) {
                     const element = data[index]
-                    
                     let result2 = []
                     await axios.get('danmuCountPerMin?ref='+element.path)
                     .then(function (response) {
@@ -252,8 +251,7 @@ export default {
                 </template>
                 <template #default>
                     <el-table 
-                        v-infinite-scroll="loadFileList"
-                        :infinite-scroll-disabled="disabledLoadFileList"
+                        v-vTablescroll="loadFileList"
                         :data="filterTableData" 
                         :table-layout="auto" 
                         highlight-current-row
