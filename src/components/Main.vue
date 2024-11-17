@@ -1,29 +1,12 @@
 <script>
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor';
-const vTableInfiniteScroll = {
-  mounted(el, binding) {
-    let tbody = el.querySelector('.el-table__body-wrapper') // .el-table__body-wrapper 根据版本不同会有区别
-    el.tableInfiniteScrollFn = function () {
-      if (this.scrollHeight - this.scrollTop - parseInt(this.style.height) === 0) {
-        binding.value()
-      }
-    }
-    tbody.addEventListener('scroll', el.tableInfiniteScrollFn)
-    tbody = undefined
-  },
-  unmounted(el, binding) {
-    const tbody = el.querySelector('.el-table__body-wrapper')
-    tbody.removeEventListener('scorll', el.tableInfiniteScrollFn)
-    el.tableInfiniteScrollFn = undefined
-  }
-}
-
 export default {
     data() {
         return {
             search: "",
             loading: true,
+            loopLoading: false,
             disabledLoadFileList: false,
             tableData: []
         }
@@ -74,10 +57,11 @@ export default {
             return {rowspan: 1, colspan: 1}
         },
         loadFileList(){
+            if(this.loopLoading || this.disabledLoadFileList)return
+            this.loopLoading = true
             const axios = setupCache(Axios.create());
             let that = this
             let url = 'filePath?size=20&skip='+((this.tableData.length>0)?this.tableData.length-1:0)
-            console.log(url)
             axios.get(url)
             .then(function (response) {
                 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -143,6 +127,7 @@ export default {
                         })
                         await sleep(100)
                     }
+                    that.loopLoading = false
                 };
 
                 let res = response.data
@@ -158,6 +143,8 @@ export default {
         },
     },
     mounted() {
+        if(this.loopLoading || this.disabledLoadFileList)return
+        this.loopLoading = true
         const axios = setupCache(Axios.create());
         let that = this
         axios.get('filePath?size=20')
@@ -225,6 +212,7 @@ export default {
                     })
                     await sleep(100)
                 }
+                that.loopLoading = false
             };
 
             let res = response.data
