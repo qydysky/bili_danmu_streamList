@@ -59,7 +59,7 @@ export default {
         loadFileList(){
             const axios = setupCache(Axios.create());
             let that = this
-            let url = 'filePath?size=20&skip='+(this.tableData.length>0)?this.tableData.length-1:0
+            let url = 'filePath?size=20&skip='+((this.tableData.length>0)?this.tableData.length-1:0)
             console.log(url)
             axios.get(url)
             .then(function (response) {
