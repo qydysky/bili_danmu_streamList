@@ -59,7 +59,7 @@ export default {
         loadFileList(){
             const axios = setupCache(Axios.create());
             let that = this
-            axios.get('filePath?size=20&skip='+this.tableData.length-1)
+            axios.get('filePath?size=20&skip='+this.tableData.length>0?this.tableData.length-1:0)
             .then(function (response) {
                 const sleep = ms => new Promise(r => setTimeout(r, ms));
                 const load = async (data) => {
@@ -142,7 +142,7 @@ export default {
     mounted() {
         const axios = setupCache(Axios.create());
         let that = this
-        axios.get('filePath?size=20&skip='+this.tableData.length)
+        axios.get('filePath?size=20')
         .then(function (response) {
             const sleep = ms => new Promise(r => setTimeout(r, ms));
             const load = async (data) => {
