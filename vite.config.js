@@ -7,6 +7,9 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   base: '',
   plugins: [vue()],
+  build: {
+      sourcemap: "inline",
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
