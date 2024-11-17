@@ -57,8 +57,7 @@ export default {
             return {rowspan: 1, colspan: 1}
         },
         loadFileList(){
-            const instance = Axios.create();
-            const axios = setupCache(instance);
+            const axios = setupCache(Axios.create());
             let that = this
             axios.get('filePath?size=20&skip='+this.tableData.length)
             .then(function (response) {
@@ -141,7 +140,86 @@ export default {
         },
     },
     mounted() {
-        loadFileList()
+        const axios = setupCache(Axios.create());
+        let that = this
+        axios.get('filePath?size=20&skip='+this.tableData.length)
+        .then(function (response) {
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+            const load = async (data) => {
+                that.disabledLoadFileList = !data || data.length == 0
+                for (let index = 0; data && index < data.length; index++) {
+                    const element = data[index]
+                    
+                    let result2 = []
+                    await axios.get('danmuCountPerMin?ref='+element.path)
+                    .then(function (response) {
+                        if(!response || response.length==0 || !response.data || response.data.length==0)return
+                        let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
+                        let avgC = avg(response.data) 
+                        let result = []
+                        response.data.forEach((v,k)=>{
+                            if(v>=avgC*1.5){
+                                result.push(k)
+                            }
+                        })
+                        if(result.length==0)return
+                        let mergedOP = -1
+                        let m = a => a>0.5?a-0.5:a
+                        if(result.length==1)result2.push({st:m(result[0]),dur:1.5,path:element.path,format:element.format})
+                        else result.reduce((a,b)=>{
+                            let merge = a>=b-3
+                            if(merge){
+                                if(mergedOP==-1){
+                                    mergedOP = a
+                                }
+                            } else if(mergedOP==-1) {
+                                result2.push({st:m(a),dur:1.5,path:element.path,format:element.format})
+                            } else {
+                                result2.push({st:m(mergedOP),dur:b-a+1.5,path:element.path,format:element.format})
+                                mergedOP = -1
+                            }
+                            return b
+                        })
+                    })
+                    .finally(()=>{
+                        if(result2.length>0)that.tableData.push({
+                            startLiveT: element.startLiveT,
+                            format:element.format,
+                            uname: element.uname,
+                            name: element.name,
+                            path: element.path,
+                            qn: element.qn,
+                            avgOnline: max(element.onlinesPerMin),
+                            startT: element.startT,
+                            hot: result2
+                        })
+                        else {
+                            that.tableData.push({
+                                startLiveT: element.startLiveT,
+                                format:element.format,
+                                uname: element.uname,
+                                name: element.name,
+                                path: element.path,
+                                qn: element.qn,
+                                avgOnline: max(element.onlinesPerMin),
+                                startT: element.startT
+                            })
+                        }
+                    })
+                    await sleep(100)
+                }
+            };
+
+            let res = response.data
+            let max = array => (array&&array.length>0)?Math.round(array.reduce((a,b)=>a>b?a:b)):0;
+            if (res.code == 0)load(res.data)
+            else console.error(res.message)
+        })
+        .then(function (params) {
+            setTimeout(()=>{
+                that.loading = false
+            },300)
+        })
     }
 }
 
