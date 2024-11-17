@@ -57,7 +57,7 @@ export default {
             return {rowspan: 1, colspan: 1}
         },
         loadFileList(){
-            that.disabledLoadFileList = true
+            this.disabledLoadFileList = true
             const axios = setupCache(Axios.create());
             let that = this
             let url = 'filePath?size=20&skip='+((this.tableData.length>0)?this.tableData.length-1:0)
