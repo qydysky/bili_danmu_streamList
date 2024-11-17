@@ -8,7 +8,7 @@ app.use(ElementPlus)
 app.mount('#app')
 app.directive( 'vTablescroll', {
 	mounted(el,binding) {
-        const selectwrap = el.querySelector('.el-scrollbar_wrap')
+        const selectwrap = el.querySelector('.el-scrollbar__wrap')
         if (selectwrap == null) return
         selectwrap.scrollFn = function () {
         const sign = 0
@@ -21,7 +21,7 @@ app.directive( 'vTablescroll', {
         selectwrap.addEventListener( 'scroll', selectwrap.scrollFn)
     },
     unmounted(el){
-        const selectwrap = el.querySelector('.el-scrollbar_wrap')
+        const selectwrap = el.querySelector('.el-scrollbar__wrap')
         if (selectwrap == null) return
         selectwrap. removeEventListener( 'scroll' , selectwrap.scrollFn)
         selectwrap.scrollFn = null
