@@ -123,7 +123,6 @@ export default {
                             }
                         })
                     }
-                    if(that.disabledLoadFileList)that.tableData.push({startLiveT: "加载完毕"})
                     that.loopLoading = false
                 };
 
@@ -207,7 +206,6 @@ export default {
                         }
                     })
                 }
-                if(that.disabledLoadFileList)that.tableData.push({startLiveT: "加载完毕"})
                 that.loopLoading = false
             };
 
