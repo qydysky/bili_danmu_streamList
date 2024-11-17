@@ -7,6 +7,7 @@ export default {
         return {
             search: "",
             loading: true,
+            disabledLoadFileList: false,
             tableData: []
         }
     },
@@ -63,6 +64,7 @@ export default {
             .then(function (response) {
                 const sleep = ms => new Promise(r => setTimeout(r, ms));
                 const load = async (data) => {
+                    that.disabledLoadFileList = !data || data.length == 0
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
                         
@@ -234,6 +236,7 @@ export default {
                 <template #default>
                     <el-table 
                         v-infinite-scroll="loadFileList"
+                        :infinite-scroll-disabled="disabledLoadFileList"
                         height="90vh" 
                         :data="filterTableData" 
                         :table-layout="auto" 
