@@ -14,12 +14,12 @@ app.directive( 'vTablescroll', {
             if (scrollDistance <= sign)binding.value()
         }
         selectwrap.addEventListener( 'scroll', selectwrap.scrollFn)
-        while((selectwrap.scrollHeight - selectwrap.scrollTop - selectwrap.clientHeight)<sign){binding.value()}
+        binding.value()
     },
     unmounted(el){
         const selectwrap = el.querySelector('.el-scrollbar__wrap')
         if (selectwrap == null) return
-        selectwrap. removeEventListener( 'scroll' , selectwrap.scrollFn)
+        selectwrap.removeEventListener( 'scroll' , selectwrap.scrollFn)
         selectwrap.scrollFn = null
     }
 })
