@@ -131,14 +131,13 @@ export default {
                 if (res.code == 0)load(res.data)
                 else console.error(res.message)
             })
-            .then(function (params) {
-                setTimeout(()=>{
-                    that.loading = false
-                },300)
-            })
         },
     },
-    mounted() {}
+    mounted() {
+        setTimeout(()=>{
+            this.loading = false
+        },300)
+    }
 }
 
 </script>

@@ -15,7 +15,7 @@ app.directive( 'vTablescroll', {
             return scrollDistance <= sign
         }
         selectwrap.addEventListener( 'scroll', selectwrap.scrollFn)
-        document.body.addEventListener( 'load', ()=>{console.log("load");while(selectwrap.scrollFn()){console.log("load")}})
+        while(selectwrap.scrollFn()){}
     },
     unmounted(el){
         const selectwrap = el.querySelector('.el-scrollbar__wrap')
