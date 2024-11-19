@@ -11,10 +11,9 @@ app.directive( 'vTablescroll', {
         if (selectwrap == null) return
         selectwrap.scrollFn = function () {
             const scrollDistance = this.scrollHeight - this.scrollTop - this.clientHeight
-            if (scrollDistance <= sign)binding.value()
+            if (scrollDistance <= sign)binding.value(selectwrap.scrollFn)
         }
         selectwrap.addEventListener( 'scroll', selectwrap.scrollFn)
-        binding.value()
     },
     unmounted(el){
         const selectwrap = el.querySelector('.el-scrollbar__wrap')
