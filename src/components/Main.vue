@@ -55,7 +55,7 @@ export default {
             if(row.colspan && columnIndex == 1)return {rowspan: 1, colspan: 10}
             return {rowspan: 1, colspan: 1}
         },
-        loadFileList(recall){
+        loadFileList(el){
             if(this.loopLoading || this.disabledLoadFileList)return console.log("skip")
             this.loopLoading = true
             let that = this
@@ -124,7 +124,7 @@ export default {
                         })
                     }
                     that.loopLoading = false
-                    recall()
+                    el.scrollFn()
                 };
 
                 let res = response.data
