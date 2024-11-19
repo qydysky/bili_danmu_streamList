@@ -9,14 +9,13 @@ app.directive( 'vTablescroll', {
         const selectwrap = el.querySelector('.el-scrollbar__wrap')
         if (selectwrap == null) return
         selectwrap.scrollFn = function () {
-        const sign = 50
-        const scrollDistance =
-            this.scrollHeight - this.scrollTop - this.clientHeight
-            if ( scrollDistance <= sign) {
-            binding.value()
-            }
+            const sign = 50
+            const scrollDistance = this.scrollHeight - this.scrollTop - this.clientHeight
+            if (scrollDistance <= sign)binding.value()
+            return scrollDistance <= sign
         }
         selectwrap.addEventListener( 'scroll', selectwrap.scrollFn)
+        while(selectwrap.scrollFn){}
     },
     unmounted(el){
         const selectwrap = el.querySelector('.el-scrollbar__wrap')
