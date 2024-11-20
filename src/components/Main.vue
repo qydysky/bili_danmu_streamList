@@ -67,7 +67,7 @@ export default {
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
                         let result2 = []
-                        await axios.get('danmuCountPerMin?ref='+element.path)
+                        await axios.get('/danmuCountPerMin/ref='+element.path)
                         .then(function (response) {
                             if(!response || response.length==0 || !response.data || response.data.length==0)return
                             let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
