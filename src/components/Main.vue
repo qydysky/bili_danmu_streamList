@@ -60,7 +60,7 @@ export default {
             this.loopLoading = true
             let that = this
             const axios = setupCache(Axios.create());
-            axios.get('filePath?size=10&skip='+((this.tableData.length>0)?this.tableData.length-1:0))
+            axios.get('filePath?size=10&skip='+this.tableData.length)
             .then(function (response) {
                 const load = async (data) => {
                     that.disabledLoadFileList = !data || data.length < 10
