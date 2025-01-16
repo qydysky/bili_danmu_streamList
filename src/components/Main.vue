@@ -39,10 +39,12 @@ export default {
     },
     methods: {
         rowClick(data) {
-            window.open("player/?ref="+data.path+(data.format?"&format="+data.format:""))
+            let para = new URL(window.location.href).searchParams;
+            window.open("player/?ref="+(para.has("ref")?para.get("ref"):"")+data.path+(data.format?"&format="+data.format:""))
         },
         hotRowClick(data) {
-            window.open("player/?ref="+data.path+(data.format?"&format="+data.format:"")+"&st="+data.st+"m&dur="+data.dur+"m")
+            let para = new URL(window.location.href).searchParams;
+            window.open("player/?ref="+(para.has("ref")?para.get("ref"):"")+data.path+(data.format?"&format="+data.format:"")+"&st="+data.st+"m&dur="+data.dur+"m")
         },
         colspan({
             row,
@@ -60,14 +62,16 @@ export default {
             this.loopLoading = true
             let that = this
             const axios = setupCache(Axios.create());
-            axios.get('filePath?size=10&skip='+this.tableData.length)
+            let para = new URL(window.location.href).searchParams;
+            
+            axios.get('filePath?size=10&ref='+(para.has("ref")?para.get("ref"):"")+'&skip='+this.tableData.length)
             .then(function (response) {
                 const load = async (data) => {
                     that.disabledLoadFileList = !data || data.length < 10
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
                         let result2 = []
-                        await axios.get('danmuCountPerMin?ref='+element.path)
+                        await axios.get('danmuCountPerMin?ref='+(para.has("ref")?para.get("ref"):"")+element.path)
                         .then(function (response) {
                             if(!response || response.length==0 || !response.data || response.data.length==0)return
                             let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
