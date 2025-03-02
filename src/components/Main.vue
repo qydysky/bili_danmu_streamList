@@ -111,6 +111,7 @@ export default {
                                 qn: element.qn,
                                 avgOnline: max(element.onlinesPerMin),
                                 startT: element.startT,
+                                druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
                                 hot: result2
                             })
                             else {
@@ -122,7 +123,8 @@ export default {
                                     path: element.path,
                                     qn: element.qn,
                                     avgOnline: max(element.onlinesPerMin),
-                                    startT: element.startT
+                                    startT: element.startT,
+                                    druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
                                 })
                             }
                         })
@@ -176,6 +178,7 @@ export default {
                         <el-table-column label="画质" prop="qn"/>
                         <el-table-column label="观看人数" prop="avgOnline"/>
                         <el-table-column label="录制时间" prop="startT" min-width="200px"/>
+                        <el-table-column label="录制时长" prop="druT" min-width="100px"/>
                         <el-table-column label="本场开始时间" prop="startLiveT" min-width="200px"/>
                         <el-table-column label="切片" min-width="300px">
                             <template #default="scope">
