@@ -85,7 +85,7 @@ export default {
                             if(result.length==0)return
                             let mergedOP = -1
                             let m = a => a>0.5?a-0.5:a
-                            if(result.length==1)result2.push({st:m(result[0]),dur:1.5,path:element.path,format:element.format})
+                            if(result.length==1)result2.push({st:m(result[0]),point:response.data[result[0]],dur:1.5,path:element.path,format:element.format})
                             else result.reduce((a,b)=>{
                                 let merge = a>=b-2
                                 if(merge){
@@ -93,9 +93,9 @@ export default {
                                         mergedOP = a
                                     }
                                 } else if(mergedOP==-1) {
-                                    result2.push({st:m(a),dur:1.5,path:element.path,format:element.format})
+                                    result2.push({st:m(a),point:response.data[a],dur:1.5,path:element.path,format:element.format})
                                 } else {
-                                    result2.push({st:m(mergedOP),dur:b-a+1.5,path:element.path,format:element.format})
+                                    result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:b-a+1.5,path:element.path,format:element.format})
                                     mergedOP = -1
                                 }
                                 return b
@@ -192,7 +192,7 @@ export default {
                                 <div v-if="scope.row.hot">
                                     <el-space wrap>
                                         <div v-for="tag in scope.row.hot">
-                                            <el-button size="small" plain @click.prevent="hotRowClick(tag)">{{ tag.st }}</el-button>
+                                            <el-button size="small" plain @click.prevent="hotRowClick(tag)">{{ tag.st }}({{ tag.point }})</el-button>
                                         </div>
                                     </el-space>
                                 </div>
@@ -204,3 +204,9 @@ export default {
         </el-col>
     </el-row>
 </template>
+
+<style scoped>
+    .el-badge.item {
+    margin-top: 11px;
+    }
+</style>
