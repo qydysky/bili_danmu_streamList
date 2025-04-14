@@ -171,7 +171,17 @@ export default {
                             show-overflow-tooltip
                         >
                             <template #default="scope">
-                                <el-link @click.prevent="rowClick(scope.row)">{{ scope.row.name }}</el-link>
+                                <el-popover :width="500">
+                                    <template #reference>
+                                        <el-link @click.prevent="rowClick(scope.row)">
+                                            {{ scope.row.name }}
+                                        </el-link>
+                                    </template>
+                                    
+                                    <el-descriptions :size="small" border>
+                                        <el-descriptions-item label="文件夹">{{ scope.row.path }}</el-descriptions-item>
+                                    </el-descriptions>
+                                </el-popover>
                             </template>
                         </el-table-column>
                         <el-table-column label="主播名" prop="uname" min-width="200px"/>
