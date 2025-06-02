@@ -84,18 +84,18 @@ export default {
                             })
                             if(result.length==0)return
                             let mergedOP = -1
-                            let m = a => a>0.5?a-0.5:a
-                            if(result.length==1)result2.push({st:m(result[0]),point:response.data[result[0]],dur:1.5,path:element.path,format:element.format})
+                            let m = a => a>0.2?a-0.2:a
+                            if(result.length==1)result2.push({st:m(result[0]),point:response.data[result[0]],dur:1.2,path:element.path,format:element.format})
                             else result.reduce((a,b)=>{
-                                let merge = a>=b-2
+                                let merge = a>=b-1
                                 if(merge){
                                     if(mergedOP==-1){
                                         mergedOP = a
                                     }
                                 } else if(mergedOP==-1) {
-                                    result2.push({st:m(a),point:response.data[a],dur:1.5,path:element.path,format:element.format})
+                                    result2.push({st:m(a),point:response.data[a],dur:1.2,path:element.path,format:element.format})
                                 } else {
-                                    result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:b-a+1.5,path:element.path,format:element.format})
+                                    result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:b-a+1.2,path:element.path,format:element.format})
                                     mergedOP = -1
                                 }
                                 return b
