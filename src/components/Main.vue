@@ -87,15 +87,14 @@ export default {
                             let m = a => a>0.2?a-0.2:a
                             if(result.length==1)result2.push({st:m(result[0]),point:response.data[result[0]],dur:1.2,path:element.path,format:element.format})
                             else result.reduce((a,b)=>{
-                                let merge = a>=b-1
-                                if(merge){
+                                if(a==b-1){
                                     if(mergedOP==-1){
                                         mergedOP = a
                                     }
                                 } else if(mergedOP==-1) {
                                     result2.push({st:m(a),point:response.data[a],dur:1.2,path:element.path,format:element.format})
                                 } else {
-                                    result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:b-a+1.2,path:element.path,format:element.format})
+                                    result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:a-mergedOP+1.2,path:element.path,format:element.format})
                                     mergedOP = -1
                                 }
                                 return b
