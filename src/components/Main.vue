@@ -44,7 +44,15 @@ export default {
         },
         hotRowClick(data) {
             let para = new URL(window.location.href).searchParams;
-            window.open("player/?ref="+(para.has("ref")?para.get("ref"):"")+data.path+(data.format?"&format="+data.format:"")+"&st="+data.st+"m&dur="+data.dur+"m")
+            window.open(
+                "player/?ref="+
+                (para.has("ref")?para.get("ref"):"")+
+                data.path+
+                (data.format?"&format="+data.format:"")+
+                (data.st?"&st="+data.st+"m":"")+
+                (data.dur?"&dur="+data.dur+"m":"")+
+                (data.modeq?"&modeq="+data.modeq:"")
+            )
         },
         colspan({
             row,
@@ -71,49 +79,21 @@ export default {
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
                         let result2 = []
-                        await axios.get('danmuCountPerMin?ref='+(para.has("ref")?para.get("ref"):"")+element.path)
-                        .then(function (response) {
-                            if(!response || response.length==0 || !response.data || response.data.length==0)return
-                            let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
-                            let avgC = avg(response.data) 
-                            let result = []
-                            response.data.forEach((v,k)=>{
-                                if(v>=avgC*1.5){
-                                    result.push(k)
-                                }
-                            })
-                            if(result.length==0)return
-                            let mergedOP = -1
-                            let m = a => a>0.2?a-0.2:a
-                            if(result.length==1)result2.push({st:m(result[0]),point:response.data[result[0]],dur:1.2,path:element.path,format:element.format})
-                            else result.reduce((a,b)=>{
-                                if(a==b-1){
-                                    if(mergedOP==-1){
-                                        mergedOP = a
+                        if(element.path==`now`){
+                            await axios.get('streamMode')
+                            .then(function (response) {
+                                const load = async (data) => {
+                                    for (let index = 0; data && index < data.length; index++) {
+                                        const modeq = data[index]
+                                        result2.push({st:modeq,path:element.path,format:element.format,modeq:modeq})
                                     }
-                                } else if(mergedOP==-1) {
-                                    result2.push({st:m(a),point:response.data[a],dur:1.2,path:element.path,format:element.format})
-                                } else {
-                                    result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:a-mergedOP+1.2,path:element.path,format:element.format})
-                                    mergedOP = -1
-                                }
-                                return b
+                                };
+                                let res = response.data
+                                if (res.code == 0)load(res.data)
+                                else console.error(res.message)
                             })
-                        })
-                        .finally(()=>{
-                            if(result2.length>0)that.tableData.push({
-                                startLiveT: element.startLiveT,
-                                format:element.format,
-                                uname: element.uname,
-                                name: element.name,
-                                path: element.path,
-                                qn: element.qn,
-                                avgOnline: max(element.onlinesPerMin),
-                                startT: element.startT,
-                                druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
-                                hot: result2
-                            })
-                            else {
+                            .catch(console.error)
+                            .finally(()=>{
                                 that.tableData.push({
                                     startLiveT: element.startLiveT,
                                     format:element.format,
@@ -124,9 +104,54 @@ export default {
                                     avgOnline: max(element.onlinesPerMin),
                                     startT: element.startT,
                                     druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
+                                    hot: (result2.length>0?result2:undefined)
                                 })
-                            }
-                        })
+                            })
+                        } else {
+                            await axios.get('danmuCountPerMin?ref='+(para.has("ref")?para.get("ref"):"")+element.path)
+                            .then(function (response) {
+                                if(!response || response.length==0 || !response.data || response.data.length==0)return
+                                let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
+                                let avgC = avg(response.data) 
+                                let result = []
+                                response.data.forEach((v,k)=>{
+                                    if(v>=avgC*1.5){
+                                        result.push(k)
+                                    }
+                                })
+                                if(result.length==0)return
+                                let mergedOP = -1
+                                let m = a => a>0.2?a-0.2:a
+                                if(result.length==1)result2.push({st:m(result[0]),point:response.data[result[0]],dur:1.2,path:element.path,format:element.format})
+                                else result.reduce((a,b)=>{
+                                    if(a==b-1){
+                                        if(mergedOP==-1){
+                                            mergedOP = a
+                                        }
+                                    } else if(mergedOP==-1) {
+                                        result2.push({st:m(a),point:response.data[a],dur:1.2,path:element.path,format:element.format})
+                                    } else {
+                                        result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:a-mergedOP+1.2,path:element.path,format:element.format})
+                                        mergedOP = -1
+                                    }
+                                    return b
+                                })
+                            })
+                            .finally(()=>{
+                                that.tableData.push({
+                                    startLiveT: element.startLiveT,
+                                    format:element.format,
+                                    uname: element.uname,
+                                    name: element.name,
+                                    path: element.path,
+                                    qn: element.qn,
+                                    avgOnline: max(element.onlinesPerMin),
+                                    startT: element.startT,
+                                    druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
+                                    hot: (result2.length>0?result2:undefined)
+                                })
+                            })
+                        }
                     }
                     that.loopLoading = false
                     el.scrollFn()
@@ -137,7 +162,7 @@ export default {
                 if (res.code == 0)load(res.data)
                 else console.error(res.message)
             })
-        },
+        }
     },
     mounted() {
         setTimeout(()=>{
@@ -189,7 +214,7 @@ export default {
                         <el-table-column label="录制时间" prop="startT" min-width="200px"/>
                         <el-table-column label="录制时长" prop="druT" min-width="100px"/>
                         <el-table-column label="本场开始时间" prop="startLiveT" min-width="200px"/>
-                        <el-table-column label="切片" min-width="300px">
+                        <el-table-column label="切片/模式" min-width="300px">
                             <template #default="scope">
                                 <div v-if="!scope.row.hot">
                                     <el-space wrap>
@@ -201,7 +226,10 @@ export default {
                                 <div v-if="scope.row.hot">
                                     <el-space wrap>
                                         <div v-for="tag in scope.row.hot">
-                                            <el-button size="small" plain @click.prevent="hotRowClick(tag)">{{ tag.st }}({{ tag.point }})</el-button>
+                                            <el-button size="small" plain @click.prevent="hotRowClick(tag)">
+                                                {{ tag.st }}
+                                                <el-text v-if="tag.point!=undefined">({{ tag.point }})</el-text>
+                                            </el-button>
                                         </div>
                                     </el-space>
                                 </div>
