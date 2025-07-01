@@ -228,7 +228,7 @@ export default {
                                         <div v-for="tag in scope.row.hot">
                                             <el-button size="small" plain @click.prevent="hotRowClick(tag)">
                                                 {{ tag.st }}
-                                                <el-text v-if="tag.point!=undefined">({{ tag.point }})</el-text>
+                                                <span v-if="tag.point!=undefined">({{ tag.point }})</span>
                                             </el-button>
                                         </div>
                                     </el-space>
