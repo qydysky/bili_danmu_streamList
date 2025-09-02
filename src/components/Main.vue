@@ -125,15 +125,16 @@ export default {
                                 if(result.length==1)result2.push({st:m(result[0]),point:response.data[result[0]],dur:1.5,path:element.path,format:element.format})
                                 else {
                                     result.reduce((a,b)=>{
-                                        if(b-a<2 && mergedOP==-1)mergedOP = a
-                                        else if(mergedOP==-1)result2.push({st:m(a),point:response.data[a],dur:1.5,path:element.path,format:element.format})
+                                        if(b-a<2){
+                                            if(mergedOP==-1)mergedOP = a
+                                        } else if(mergedOP==-1)result2.push({st:m(a),point:response.data[a],dur:1.5,path:element.path,format:element.format})
                                         else {
                                             result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:a-mergedOP+1.5,path:element.path,format:element.format})
                                             mergedOP = -1
                                         }
                                         return b
                                     })
-                                    if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,result[result.length-1]))),path:element.path,format:element.format})
+                                    if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,format:element.format})
                                 }
                             })
                             .finally(()=>{
