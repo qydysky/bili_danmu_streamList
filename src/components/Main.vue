@@ -76,6 +76,19 @@ export default {
             .then(function (response) {
                 const load = async (data) => {
                     that.disabledLoadFileList = !data || data.length < 10
+                    let refm = {}
+                    {
+                        let refs = []
+                        for (let index = 0; data && index < data.length; index++) {
+                            if(data[index].path!=`now`)refs.push(data[index].path)
+                        }
+                        await axios.post('danmuCountPerMins', refs)
+                        .then(function (response) {
+                            if(!response || response.length==0 || !response.data)return
+                            refm = response.data
+                        })
+                    }
+
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
                         let result2 = []
@@ -108,48 +121,44 @@ export default {
                                 })
                             })
                         } else {
-                            await axios.get('danmuCountPerMin?ref='+(para.has("ref")?para.get("ref"):"")+element.path)
-                            .then(function (response) {
-                                if(!response || response.length==0 || !response.data || response.data.length==0)return
-                                let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
-                                let avgC = avg(response.data) 
-                                let result = []
-                                response.data.forEach((v,k)=>{
-                                    if(v>=avgC*1.5){
-                                        result.push(k)
-                                    }
-                                })
-                                if(result.length==0)return
+                            let data = refm[element.path]
+                            let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
+                            let avgC = avg(data) 
+                            let result = []
+                            data.forEach((v,k)=>{
+                                if(v>=avgC*1.5){
+                                    result.push(k)
+                                }
+                            })
+                            if(result.length>0){
                                 let mergedOP = -1
                                 let m = a => a>0.5?a-0.5:a
-                                if(result.length==1)result2.push({st:m(result[0]),point:response.data[result[0]],dur:1.5,path:element.path,format:element.format})
+                                if(result.length==1)result2.push({st:m(result[0]),point:data[result[0]],dur:1.5,path:element.path,format:element.format})
                                 else {
                                     result.reduce((a,b)=>{
                                         if(b-a<2){
                                             if(mergedOP==-1)mergedOP = a
-                                        } else if(mergedOP==-1)result2.push({st:m(a),point:response.data[a],dur:1.5,path:element.path,format:element.format})
+                                        } else if(mergedOP==-1)result2.push({st:m(a),point:data[a],dur:1.5,path:element.path,format:element.format})
                                         else {
-                                            result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,a))),dur:a-mergedOP+1.5,path:element.path,format:element.format})
+                                            result2.push({st:m(mergedOP),point:Math.round(avg(data.slice(mergedOP,a))),dur:a-mergedOP+1.5,path:element.path,format:element.format})
                                             mergedOP = -1
                                         }
                                         return b
                                     })
-                                    if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(avg(response.data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,format:element.format})
+                                    if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(avg(data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,format:element.format})
                                 }
-                            })
-                            .finally(()=>{
-                                that.tableData.push({
-                                    startLiveT: element.startLiveT,
-                                    format:element.format,
-                                    uname: element.uname,
-                                    name: element.name,
-                                    path: element.path,
-                                    qn: element.qn,
-                                    avgOnline: max(element.onlinesPerMin),
-                                    startT: element.startT,
-                                    druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
-                                    hot: (result2.length>0?result2:undefined)
-                                })
+                            }
+                            that.tableData.push({
+                                startLiveT: element.startLiveT,
+                                format:element.format,
+                                uname: element.uname,
+                                name: element.name,
+                                path: element.path,
+                                qn: element.qn,
+                                avgOnline: max(element.onlinesPerMin),
+                                startT: element.startT,
+                                druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
+                                hot: (result2.length>0?result2:undefined)
                             })
                         }
                     }
