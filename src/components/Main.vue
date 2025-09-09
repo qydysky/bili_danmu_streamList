@@ -1,6 +1,7 @@
 <script>
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor';
+import { nextTick } from 'vue';
 export default {
     data() {
         return {
@@ -163,7 +164,7 @@ export default {
                         }
                     }
                     that.loopLoading = false
-                    el.scrollFn()
+                    nextTick(()=>{el.scrollFn()})
                 };
 
                 let res = response.data
