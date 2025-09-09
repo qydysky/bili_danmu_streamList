@@ -80,7 +80,7 @@ export default {
                     {
                         let refs = []
                         for (let index = 0; data && index < data.length; index++) {
-                            if(data[index].path!=`now`)refs.push(data[index].path)
+                            if(data[index].path!=`now`)refs.push((para.has("ref")?para.get("ref"):"")+data[index].path)
                         }
                         await axios.post('danmuCountPerMins', refs)
                         .then(function (response) {
@@ -121,7 +121,7 @@ export default {
                                 })
                             })
                         } else {
-                            let data = refm[element.path]
+                            let data = refm[(para.has("ref")?para.get("ref"):"")+element.path]
                             let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
                             let avgC = avg(data) 
                             let result = []
@@ -251,8 +251,30 @@ export default {
     </el-row>
 </template>
 
-<style scoped>
-    .el-badge.item {
-    margin-top: 11px;
+<style>
+    .el-badge.item
+    {
+        margin-top: 11px;
+    }
+
+    .el-table
+    {
+        height:90vh;
+        overflow: auto;
+    }
+
+    .el-table__row
+    {
+        animation: 1s slide-in;
+    }
+
+    @keyframes slide-in {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
     }
 </style>
