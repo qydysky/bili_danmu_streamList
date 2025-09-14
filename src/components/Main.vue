@@ -1,26 +1,25 @@
 <script>
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor';
-import { nextTick } from 'vue';
+import { nextTick, reactive } from 'vue';
+import {ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem} from 'element-plus';
 export default {
+    components:{
+        ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem
+    },
     data() {
         return {
             search: "",
-            loading: true,
             loopLoading: false,
-            disabledLoadFileList: false,
-            tableData: []
+            tableData: [],
+            form: reactive({
+                up:'',
+                recDate: '',
+                startDate: '',
+            })
         }
     },
     computed: {
-        loading: {
-            get() {
-                return this.loading
-            },
-            set(loading) {
-                this.loading = loading
-            }
-        },
         filterTableData() {
             let data = this.tableData.sort((a,b)=>{
                 if(a.startT>b.startT)return 1
@@ -66,17 +65,31 @@ export default {
             if(row.colspan && columnIndex == 1)return {rowspan: 1, colspan: 10}
             return {rowspan: 1, colspan: 1}
         },
-        loadFileList(el){
-            if(this.loopLoading || this.disabledLoadFileList)return console.log("skip")
+        loadFileList(){
+            let el = document.querySelector('#table').querySelector(".el-scrollbar__wrap")
+            const scrollDistance = el.scrollHeight - el.scrollTop - el.clientHeight
+            if (scrollDistance > 50)return
+
+            if(this.loopLoading)return console.log("skip")
             this.loopLoading = true
             let that = this
             const axios = setupCache(Axios.create());
             let para = new URL(window.location.href).searchParams;
-            
-            axios.get('filePath?size=10&ref='+(para.has("ref")?para.get("ref"):"")+'&skip='+this.tableData.length)
+            let max = array => (array&&array.length>0)?Math.round(array.reduce((a,b)=>a>b?a:b)):0;
+                
+            axios.get(
+                'filePath?size=10'+
+                (para.has("ref")?'&ref='+para.has("ref"):"")+
+                (this.form.up?'&uname='+this.form.up:"")+
+                (this.form.recDate?'&startT='+this.form.recDate:"")+
+                (this.form.startDate?'&startLiveT='+this.form.startDate:"")+
+                '&skip='+this.tableData.length
+            )
             .then(function (response) {
                 const load = async (data) => {
-                    that.disabledLoadFileList = !data || data.length < 10
+                    that.loopLoading = false
+                    if(!data || res.data.length==0)return
+
                     let refm = {}
                     {
                         let refs = []
@@ -163,104 +176,144 @@ export default {
                             })
                         }
                     }
-                    that.loopLoading = false
-                    nextTick(()=>{el.scrollFn()})
+
+                    that.loadFileList()
                 };
 
                 let res = response.data
-                let max = array => (array&&array.length>0)?Math.round(array.reduce((a,b)=>a>b?a:b)):0;
                 if (res.code == 0)load(res.data)
                 else console.error(res.message)
             })
+        },
+        onSubmit(){
+            this.tableData = []
+            nextTick(this.loadFileList)
+        },
+        onReset(){
+            this.form.up = ''
+            this.form.startDate = ''
+            this.form.recDate = ''
+            this.onSubmit()
         }
     },
     mounted() {
-        setTimeout(()=>{
-            this.loading = false
-        },300)
+        this.loadFileList()
+        window.addEventListener("resize", ()=>{
+            document.querySelector("#table").style.height = "calc(100% - "+document.querySelector("#form").scrollHeight+"px)"
+        })
+        document.querySelector("#table").style.height = "calc(100% - "+document.querySelector("#form").scrollHeight+"px)"
     }
 }
-
 </script>
 
 <template>
-    <el-row>
-        <el-col :span="24">
-            <el-skeleton :loading="loading" animated>
-                <template #template>
-                    <el-skeleton :rows="5" animated></el-skeleton>
+    <div style="height: calc(100vh - 20px);">
+        <el-form 
+            id="form" 
+            :model="form" 
+            label-width="auto" 
+            :inline="true" 
+            class="form-inline" 
+            label-position="left" 
+            size="small"
+        >
+            <el-form-item label="主播名" label-width="7em">
+                <el-input v-model="form.up" placeholder="" clearable style="width:10em"/>
+            </el-form-item>
+            <el-form-item label="片段录制日期" label-width="7em">
+                <el-date-picker
+                    v-model="form.recDate"
+                    type="date"
+                    value-format="YYYY-MM-DD"
+                    style="width:10em"
+                />
+            </el-form-item>
+            <el-form-item label="本场开始日期" label-width="7em">
+                <el-date-picker
+                    v-model="form.startDate"
+                    type="date"
+                    value-format="YYYY-MM-DD"
+                    style="width:10em"
+                />
+            </el-form-item>
+            <el-form-item label="" label-width="0em">
+                <el-button @click="onSubmit">查询</el-button>
+                <el-button @click="onReset">重置</el-button>
+            </el-form-item>
+        </el-form>
+        <el-table 
+            id="table"
+            @scroll="loadFileList"
+            :data="filterTableData" 
+            :table-layout="auto" 
+            highlight-current-row
+            :default-sort="{ prop: 'startT', order: 'descending' }"
+        >
+            <el-table-column 
+                label="标题" 
+                min-width="300"
+                show-overflow-tooltip
+            >
+                <template #default="scope">
+                    <el-popover :width="500">
+                        <template #reference>
+                            <el-link @click.prevent="rowClick(scope.row)">
+                                {{ scope.row.name }}
+                            </el-link>
+                        </template>
+                        
+                        <el-descriptions :size="small" border>
+                            <el-descriptions-item label="文件夹">{{ scope.row.path }}</el-descriptions-item>
+                        </el-descriptions>
+                    </el-popover>
                 </template>
-                <template #default>
-                    <el-table 
-                        v-vTablescroll="loadFileList"
-                        :data="filterTableData" 
-                        :table-layout="auto" 
-                        highlight-current-row
-                        :default-sort="{ prop: 'startT', order: 'descending' }"
-                        style="height:90vh; overflow: auto"
-                    >
-                        <el-table-column 
-                            label="标题" 
-                            min-width="300"
-                            show-overflow-tooltip
-                        >
-                            <template #default="scope">
-                                <el-popover :width="500">
-                                    <template #reference>
-                                        <el-link @click.prevent="rowClick(scope.row)">
-                                            {{ scope.row.name }}
-                                        </el-link>
-                                    </template>
-                                    
-                                    <el-descriptions :size="small" border>
-                                        <el-descriptions-item label="文件夹">{{ scope.row.path }}</el-descriptions-item>
-                                    </el-descriptions>
-                                </el-popover>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="主播名" prop="uname" min-width="200px"/>
-                        <el-table-column label="画质" prop="qn"/>
-                        <el-table-column label="观看人数" prop="avgOnline"/>
-                        <el-table-column label="录制时间" prop="startT" min-width="200px"/>
-                        <el-table-column label="录制时长" prop="druT" min-width="100px"/>
-                        <el-table-column label="本场开始时间" prop="startLiveT" min-width="200px"/>
-                        <el-table-column label="切片/模式" min-width="300px">
-                            <template #default="scope">
-                                <div v-if="!scope.row.hot">
-                                    <el-space wrap>
-                                        <div>
-                                            <el-text>-</el-text>
-                                        </div>
-                                    </el-space>
-                                </div>
-                                <div v-if="scope.row.hot">
-                                    <el-space wrap>
-                                        <div v-for="tag in scope.row.hot">
-                                            <el-button size="small" plain @click.prevent="hotRowClick(tag)">
-                                                {{ tag.st }}
-                                                <span v-if="tag.point!=undefined">({{ tag.point }})</span>
-                                            </el-button>
-                                        </div>
-                                    </el-space>
-                                </div>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+            </el-table-column>
+            <el-table-column label="主播名" prop="uname" min-width="200px"/>
+            <el-table-column label="画质" prop="qn"/>
+            <el-table-column label="观看人数" prop="avgOnline"/>
+            <el-table-column label="录制时间" prop="startT" min-width="200px"/>
+            <el-table-column label="录制时长" prop="druT" min-width="100px"/>
+            <el-table-column label="本场开始时间" prop="startLiveT" min-width="200px"/>
+            <el-table-column label="切片/模式" min-width="300px">
+                <template #default="scope">
+                    <div v-if="!scope.row.hot">
+                        <el-space wrap>
+                            <div>
+                                <el-text>-</el-text>
+                            </div>
+                        </el-space>
+                    </div>
+                    <div v-if="scope.row.hot">
+                        <el-space wrap>
+                            <div v-for="tag in scope.row.hot">
+                                <el-button size="small" plain @click.prevent="hotRowClick(tag)">
+                                    {{ tag.st }}
+                                    <span v-if="tag.point!=undefined">({{ tag.point }})</span>
+                                </el-button>
+                            </div>
+                        </el-space>
+                    </div>
                 </template>
-            </el-skeleton>
-        </el-col>
-    </el-row>
+            </el-table-column>
+        </el-table>
+    </div>
 </template>
 
 <style>
+    .form-inline .el-input,
+    .form-inline .el-select
+    {
+        --el-input-width: 220px;
+        --el-select-width: 220px;
+    }
+
     .el-badge.item
     {
         margin-top: 11px;
     }
-
-    .el-table
+    #table .el-table__inner-wrapper
     {
-        height:90vh;
+        height:100%;
         overflow: auto;
     }
 
