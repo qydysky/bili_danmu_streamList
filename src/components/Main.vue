@@ -32,7 +32,16 @@ export default {
             ]
         }
     },
-    computed: {},
+    computed: {
+        defaultDateF: {
+            get() {
+                return this.defaultDate
+            },
+            set(defaultDate) {
+                this.defaultDate = defaultDate
+            }
+        }
+    },
     methods: {
         rowClick(data) {
             let para = new URL(window.location.href).searchParams;
@@ -179,7 +188,9 @@ export default {
                             })
                         }
                     }
-                    if(that.tableData.length>0)that.defaultDate = new Date(Date.parse(that.tableData[0].startT))
+                    if(that.tableData.length>0){
+                        that.defaultDateF = new Date(Date.parse(that.tableData[0].startT))
+                    }
                     that.loopLoading = false
                     that.loadFileList()
                 };
@@ -231,7 +242,7 @@ export default {
                     v-model="form.recDate"
                     type="date"
                     value-format="YYYY-MM-DD"
-                    :default-value="defaultDate"
+                    :default-value="defaultDateF"
                     style="width:10em"
                 />
             </el-form-item>
@@ -240,7 +251,7 @@ export default {
                     v-model="form.startDate"
                     type="date"
                     value-format="YYYY-MM-DD"
-                    :default-value="defaultDate"
+                    :default-value="defaultDateF"
                     style="width:10em"
                 />
             </el-form-item>
