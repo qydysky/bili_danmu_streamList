@@ -2,10 +2,10 @@
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor';
 import { nextTick, reactive } from 'vue';
-import {ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem} from 'element-plus';
+import {ElSelect,ElOption,ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem} from 'element-plus';
 export default {
     components:{
-        ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem
+        ElSelect,ElOption,ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem
     },
     data() {
         return {
@@ -16,7 +16,19 @@ export default {
                 up:'',
                 recDate: '',
                 startDate: '',
-            })
+                sort: ''
+            }),
+            sortOption: [
+                {
+                    value: 'startTAsc',
+                    label: '时间升序',
+                },
+                {
+                    value: 'startTDsc',
+                    label: '时间降序',
+                }
+                
+            ]
         }
     },
     computed: {
@@ -79,10 +91,11 @@ export default {
                 
             axios.get(
                 'filePath?size=10'+
-                (para.has("ref")?'&ref='+para.has("ref"):"")+
+                (para.has("ref")?'&ref='+para.get("ref"):"")+
                 (this.form.up?'&uname='+this.form.up:"")+
                 (this.form.recDate?'&startT='+this.form.recDate:"")+
                 (this.form.startDate?'&startLiveT='+this.form.startDate:"")+
+                (this.form.sort?'&sort='+this.form.sort:"")+
                 '&skip='+this.tableData.length
             )
             .then(function (response) {
@@ -235,6 +248,19 @@ export default {
                     value-format="YYYY-MM-DD"
                     style="width:10em"
                 />
+            </el-form-item>
+            <el-form-item label="排序" label-width="3em">
+                <el-select 
+                    v-model="form.sort"
+                    style="width:14em"
+                >
+                    <el-option
+                        v-for="item in sortOption"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
             </el-form-item>
             <el-form-item label="" label-width="0em">
                 <el-button @click="onSubmit">查询</el-button>
