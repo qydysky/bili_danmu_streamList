@@ -9,8 +9,8 @@ export default {
     },
     data() {
         return {
-            search: "",
             loopLoading: false,
+            stopLoad: false,
             tableData: [],
             form: reactive({
                 up:'',
@@ -31,24 +31,7 @@ export default {
             ]
         }
     },
-    computed: {
-        filterTableData() {
-            let data = this.tableData.sort((a,b)=>{
-                if(a.startT>b.startT)return 1
-                if(a.startT==b.startT)return 0
-                if(a.startT<b.startT)return -1
-            })
-            return data
-        },
-        search: {
-            get() {
-                return this.search
-            },
-            set(value) {
-                this.search = value
-            }
-        }
-    },
+    computed: {},
     methods: {
         rowClick(data) {
             let para = new URL(window.location.href).searchParams;
@@ -78,12 +61,15 @@ export default {
             return {rowspan: 1, colspan: 1}
         },
         loadFileList(){
+            if(this.stopLoad)return
+
             let el = document.querySelector('#table').querySelector(".el-scrollbar__wrap")
             const scrollDistance = el.scrollHeight - el.scrollTop - el.clientHeight
             if (scrollDistance > 50)return
 
             if(this.loopLoading)return console.log("skip")
             this.loopLoading = true
+
             let that = this
             const axios = setupCache(Axios.create());
             let para = new URL(window.location.href).searchParams;
@@ -100,8 +86,11 @@ export default {
             )
             .then(function (response) {
                 const load = async (data) => {
-                    that.loopLoading = false
-                    if(!data || res.data.length==0)return
+                    if(!data || res.data.length==0){
+                        that.loopLoading = false
+                        that.stopLoad = true
+                        return
+                    }
 
                     let refm = {}
                     {
@@ -189,7 +178,8 @@ export default {
                             })
                         }
                     }
-
+                        
+                    that.loopLoading = false
                     that.loadFileList()
                 };
 
@@ -199,10 +189,12 @@ export default {
             })
         },
         onSubmit(){
+            this.stopLoad = false
             this.tableData = []
             nextTick(this.loadFileList)
         },
         onReset(){
+            this.form.sort = ''
             this.form.up = ''
             this.form.startDate = ''
             this.form.recDate = ''
@@ -253,6 +245,7 @@ export default {
                 <el-select 
                     v-model="form.sort"
                     style="width:14em"
+                    clearable
                 >
                     <el-option
                         v-for="item in sortOption"
@@ -270,10 +263,9 @@ export default {
         <el-table 
             id="table"
             @scroll="loadFileList"
-            :data="filterTableData" 
+            :data="tableData" 
             :table-layout="auto" 
             highlight-current-row
-            :default-sort="{ prop: 'startT', order: 'descending' }"
         >
             <el-table-column 
                 label="标题" 
