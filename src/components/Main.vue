@@ -13,10 +13,10 @@ export default {
             stopLoad: false,
             tableData: [],
             form: reactive({
-                up:'',
-                recDate: '',
-                startDate: '',
-                sort: 'startTDsc'
+                up: localStorage.getItem("up"),
+                recDate: localStorage.getItem("recDate"),
+                startDate: localStorage.getItem("startDate"),
+                sort: localStorage.getItem("sort")?localStorage.getItem("sort"):'startTDsc'
             }),
             defaultDate: new Date(),
             sortOption: [
@@ -201,12 +201,16 @@ export default {
             })
         },
         onSubmit(){
+            localStorage.setItem("up",this.form.up?this.form.up:"")
+            localStorage.setItem("recDate",this.form.recDate?this.form.recDate:"")
+            localStorage.setItem("startDate",this.form.startDate?this.form.startDate:"")
+            localStorage.setItem("sort",this.form.sort?this.form.sort:"")
             this.stopLoad = false
             this.tableData = []
             nextTick(this.loadFileList)
         },
         onReset(){
-            this.form.sort = ''
+            this.form.sort = 'startTDsc'
             this.form.up = ''
             this.form.startDate = ''
             this.form.recDate = ''
