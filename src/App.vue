@@ -20,6 +20,7 @@ export default {
                 sort: 'startTDsc'
             }),
             defaultDate: new Date(),
+            hadSave: false,
             sortOption: [
                 {
                     value: 'startTAsc',
@@ -41,7 +42,7 @@ export default {
             set(defaultDate) {
                 this.defaultDate = defaultDate
             }
-        }
+        },
     },
     methods: {
         saveSearch() {
@@ -231,11 +232,38 @@ export default {
             this.form.startDate = ''
             this.form.recDate = ''
             this.onSubmit()
+        },
+        hasContinue(){
+            let para = new URL(window.location.href).searchParams.get("ref");
+            para = para?para:""
+            let save = localStorage.getItem("save")
+            save = save?JSON.parse(save):{}
+            this.hadSave = save[para]
+        },
+        onContinue(){
+            let para = new URL(window.location.href).searchParams.get("ref");
+            para = para?para:""
+            let save = localStorage.getItem("save")
+            save = save?JSON.parse(save):{}
+            if(save[para]){
+                let dur = save[para]["dur"]
+                let st = save[para]["st"]
+                let format = save[para]["format"]
+                let ref = save[para]["ref"]
+                window.open("player/?ref="+ref+"&format="+format+"&st="+st+(dur?"&dur="+dur:""))
+                save[para] = undefined
+                localStorage.setItem("save",JSON.stringify(save))
+                this.hadSave = false
+            }
         }
     },
     mounted() {
+        this.hasContinue()
         this.getSearch()
         this.loadFileList()
+        document.addEventListener("visibilitychange", ()=>{
+            this.hasContinue()
+        })
         window.addEventListener("resize", ()=>{
             document.querySelector("#table").style.height = "calc(100% - "+document.querySelector("#form").scrollHeight+"px)"
         })
@@ -293,6 +321,7 @@ export default {
             <el-form-item label="" label-width="0em">
                 <el-button @click="onSubmit">查询</el-button>
                 <el-button @click="onReset">重置</el-button>
+                <el-button id="continue" v-show="hadSave" @click="onContinue">继续上次</el-button>
             </el-form-item>
         </el-form>
         <el-table 
