@@ -138,6 +138,12 @@ export default {
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
                         let result2 = []
+                        if (element.cuts) {
+                            for (let j = 0; j < element.cuts.length; j++) {
+                                const cut = element.cuts[j];
+                                result2.push({st:cut.st,dur:cut.dur,path:element.path,format:element.format,point:cut.title})
+                            }
+                        }
                         if(element.path==`now`){
                             await axios.get('streamMode')
                             .then(function (response) {
