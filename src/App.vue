@@ -138,7 +138,9 @@ export default {
                     for (let index = 0; data && index < data.length; index++) {
                         const element = data[index]
                         let result2 = []
+                        let cutsLen = 0
                         if (element.cuts) {
+                            cutsLen = element.cuts.length
                             for (let j = 0; j < element.cuts.length; j++) {
                                 const cut = element.cuts[j];
                                 result2.push({st:cut.st,dur:cut.dur,path:element.path,format:element.format,point:cut.title})
@@ -200,6 +202,7 @@ export default {
                                     if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(avg(data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,format:element.format})
                                 }
                             }
+                            result2 = result2.slice(0,cutsLen).concat(result2.slice(cutsLen).sort((a,b)=>{ return b.point - a.point }).slice(0,10))
                             that.tableData.push({
                                 startLiveT: element.startLiveT,
                                 format:element.format,
