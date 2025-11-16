@@ -202,7 +202,13 @@ export default {
                                     if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(avg(data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,format:element.format})
                                 }
                             }
-                            result2 = result2.slice(0,cutsLen).concat(result2.slice(cutsLen).sort((a,b)=>{ return b.point - a.point }).slice(0,10))
+                            result2 = result2.slice(0,cutsLen)
+                            .concat(
+                                result2.slice(cutsLen)
+                                .filter(a=>{ return result2.slice(0,cutsLen).findIndex(b=>b.st==a.st) == -1})
+                                .sort((a,b)=>{ return b.point - a.point })
+                                .slice(0,5)
+                            )
                             that.tableData.push({
                                 startLiveT: element.startLiveT,
                                 format:element.format,
