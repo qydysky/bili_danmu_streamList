@@ -194,12 +194,12 @@ export default {
                                             if(mergedOP==-1)mergedOP = a
                                         } else if(mergedOP==-1)result2.push({st:m(a),point:data[a],dur:1.5,path:element.path,format:element.format})
                                         else {
-                                            result2.push({st:m(mergedOP),point:Math.round(avg(data.slice(mergedOP,a))),dur:a-mergedOP+1.5,path:element.path,format:element.format})
+                                            result2.push({st:m(mergedOP),point:Math.round(max(data.slice(mergedOP,a))),dur:a-mergedOP+1.5,path:element.path,format:element.format})
                                             mergedOP = -1
                                         }
                                         return b
                                     })
-                                    if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(avg(data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,format:element.format})
+                                    if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(max(data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,format:element.format})
                                 }
                             }
                             result2 = result2.slice(0,cutsLen)
