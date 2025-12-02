@@ -179,11 +179,14 @@ export default {
                             let avg = array => (array&&array.length>0)?(array.reduce((a,b)=>a+b)/array.length):0;
                             let avgC = avg(data) 
                             let result = []
-                            data.forEach((v,k)=>{
-                                if(v>=avgC*1.5){
+                            for (let k = 0; k < data.length; k++) {
+                                if(k > 0 && data[k] > data[k-1]*2){
+                                    result.push(k)
+                                } else if(data[k]>=avgC*1.5){
                                     result.push(k)
                                 }
-                            })
+                            }
+
                             if(result.length>0){
                                 let mergedOP = -1
                                 let m = a => a>0.5?a-0.5:a
