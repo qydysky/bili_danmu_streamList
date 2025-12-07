@@ -65,7 +65,7 @@ export default {
         },
         rowClick(data) {
             let para = new URL(window.location.href).searchParams;
-            window.open("player/?ref="+(para.has("ref")?para.get("ref"):"")+data.path+(data.format?"&format="+data.format:""))
+            window.open("player/?ref="+(para.has("ref")?para.get("ref"):"")+data.path+(data.format?"&format="+data.format:"")+(data.codec?"&codec="+data.codec:""))
         },
         hotRowClick(data) {
             let para = new URL(window.location.href).searchParams;
@@ -74,6 +74,7 @@ export default {
                 (para.has("ref")?para.get("ref"):"")+
                 data.path+
                 (data.format?"&format="+data.format:"")+
+                (data.codec?"&codec="+data.codec:"")+
                 (data.st?"&st="+data.st+"m":"")+
                 (data.dur?"&dur="+data.dur+"m":"")+
                 (data.modeq?"&modeq="+data.modeq:"")
@@ -143,7 +144,7 @@ export default {
                             cutsLen = element.cuts.length
                             for (let j = 0; j < element.cuts.length; j++) {
                                 const cut = element.cuts[j];
-                                result2.push({st:cut.st,dur:cut.dur,path:element.path,format:element.format,point:cut.title})
+                                result2.push({st:cut.st,dur:cut.dur,path:element.path,codec:element.codec,format:element.format,point:cut.title})
                             }
                         }
                         if(element.path==`now`){
@@ -152,7 +153,7 @@ export default {
                                 const load = async (data) => {
                                     for (let index = 0; data && index < data.length; index++) {
                                         const modeq = data[index]
-                                        result2.push({st:modeq,path:element.path,format:element.format,modeq:modeq})
+                                        result2.push({st:modeq,path:element.path,codec:element.codec,format:element.format,modeq:modeq})
                                     }
                                 };
                                 let res = response.data
@@ -164,6 +165,7 @@ export default {
                                 that.tableData.push({
                                     startLiveT: element.startLiveT,
                                     format:element.format,
+                                    codec:element.codec,
                                     uname: element.uname,
                                     name: element.name,
                                     path: element.path,
@@ -190,19 +192,19 @@ export default {
                             if(result.length>0){
                                 let mergedOP = -1
                                 let m = a => a>0.5?a-0.5:a
-                                if(result.length==1)result2.push({st:m(result[0]),point:data[result[0]],dur:1.5,path:element.path,format:element.format})
+                                if(result.length==1)result2.push({st:m(result[0]),point:data[result[0]],dur:1.5,path:element.path,codec:element.codec,format:element.format})
                                 else {
                                     result.reduce((a,b)=>{
                                         if(b-a<2){
                                             if(mergedOP==-1)mergedOP = a
-                                        } else if(mergedOP==-1)result2.push({st:m(a),point:data[a],dur:1.5,path:element.path,format:element.format})
+                                        } else if(mergedOP==-1)result2.push({st:m(a),point:data[a],dur:1.5,path:element.path,codec:element.codec,format:element.format})
                                         else {
-                                            result2.push({st:m(mergedOP),point:Math.round(max(data.slice(mergedOP,a))),dur:a-mergedOP+1.5,path:element.path,format:element.format})
+                                            result2.push({st:m(mergedOP),point:Math.round(max(data.slice(mergedOP,a))),dur:a-mergedOP+1.5,path:element.path,codec:element.codec,format:element.format})
                                             mergedOP = -1
                                         }
                                         return b
                                     })
-                                    if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(max(data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,format:element.format})
+                                    if(mergedOP!=-1)result2.push({st:m(mergedOP),point:Math.round(max(data.slice(mergedOP,result[result.length-1]))),dur:result[result.length-1]-mergedOP+1.5,path:element.path,codec:element.codec,format:element.format})
                                 }
                             }
                             result2 = result2.slice(0,cutsLen)
@@ -215,6 +217,7 @@ export default {
                             that.tableData.push({
                                 startLiveT: element.startLiveT,
                                 format:element.format,
+                                codec:element.codec,
                                 uname: element.uname,
                                 name: element.name,
                                 path: element.path,
@@ -267,8 +270,9 @@ export default {
                 let dur = save[para]["dur"]
                 let st = save[para]["st"]
                 let format = save[para]["format"]
+                let codec = save[para]["codec"]
                 let ref = save[para]["ref"]
-                window.open("player/?ref="+ref+"&format="+format+"&st="+st+(dur?"&dur="+dur:""))
+                window.open("player/?ref="+ref+"&format="+format+"&codec="+codec+"&st="+st+(dur?"&dur="+dur:""))
                 save[para] = undefined
                 localStorage.setItem("save",JSON.stringify(save))
                 this.hadSave = false
