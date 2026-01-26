@@ -355,7 +355,7 @@ export default {
         >
             <el-table-column 
                 label="标题" 
-                min-width="300"
+                min-width="300px"
                 show-overflow-tooltip
             >
                 <template #default="scope">
@@ -372,12 +372,12 @@ export default {
                     </el-popover>
                 </template>
             </el-table-column>
-            <el-table-column label="主播名" prop="uname" min-width="200px"/>
-            <el-table-column label="画质" prop="qn"/>
+            <el-table-column label="主播名" prop="uname" min-width="170px"/>
+            <el-table-column label="画质" prop="qn" width="80px"/>
             <el-table-column label="观看人数" prop="avgOnline"/>
-            <el-table-column label="录制时间" prop="startT" min-width="200px"/>
-            <el-table-column label="录制时长" prop="druT" min-width="100px"/>
-            <el-table-column label="本场开始时间" prop="startLiveT" min-width="200px"/>
+            <el-table-column label="录制时间" prop="startT" width="170px"/>
+            <el-table-column label="录制时长" prop="druT" width="100px"/>
+            <el-table-column label="本场开始时间" prop="startLiveT" width="170px"/>
             <el-table-column label="切片/模式" min-width="300px">
                 <template #default="scope">
                     <div v-if="!scope.row.hot">
