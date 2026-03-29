@@ -359,7 +359,7 @@ export default {
                 show-overflow-tooltip
             >
                 <template #default="scope">
-                    <el-popover :width="500">
+                    <el-popover :width="500" placement="right">
                         <template #reference>
                             <el-link @click.prevent="rowClick(scope.row)">
                                 {{ scope.row.name }}
