@@ -105,6 +105,50 @@ export default {
             const axios = setupCache(Axios.create());
             let para = new URL(window.location.href).searchParams;
             let max = array => (array&&array.length>0)?Math.round(array.reduce((a,b)=>a>b?a:b)):0;
+            let onLinePerHourOptimized = array => {
+                if (!array || array.length === 0) return 0;
+                if (array.length === 1) return array[0];
+
+                // 1. Create an indexed copy and sort it to find distances linearly
+                const indexed = array.map((val, idx) => ({ val, idx }));
+                indexed.sort((a, b) => a.val - b.val);
+
+                const n = array.length;
+                let diff = new Array(n);
+                
+                // Calculate total prefix sum of values
+                let prefixSum = 0;
+                indexed.forEach(item => prefixSum += item.val);
+
+                // 2. Compute absolute distances in O(N) using a running prefix sum
+                let runningSum = 0;
+                for (let i = 0; i < n; i++) {
+                    let val = indexed[i].val;
+                    let originalIdx = indexed[i].idx;
+                    
+                    // Mathematical equivalent of the nested loops
+                    let leftSide = (i * val) - runningSum;
+                    let rightSide = (prefixSum - runningSum - (n - i) * val);
+                    
+                    diff[originalIdx] = leftSide + rightSide;
+                    runningSum += val;
+                }
+
+                // 3. Invert weights and apply weighted average
+                let distanceSum = Math.sumPrecise(diff);
+                let invertedDiff = diff.map(d => distanceSum - d);
+                let invertedSum = Math.sumPrecise(invertedDiff);
+
+                if (invertedSum === 0) return array[0];
+
+                let rul = 0;
+                for (let i = 0; i < array.length; i++) {
+                    rul += (array[i] * invertedDiff[i]) / invertedSum;
+                }
+
+                return Math.round(rul);
+            };
+
                 
             axios.get(
                 'filePath?size=10'+
@@ -170,7 +214,7 @@ export default {
                                     name: element.name,
                                     path: element.path,
                                     qn: element.qn,
-                                    avgOnline: max(element.onlinesPerMin),
+                                    avgOnline: onLinePerHourOptimized(element.onlinesPerMin),
                                     startT: element.startT,
                                     druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
                                     hot: (result2.length>0?result2:undefined)
@@ -222,7 +266,7 @@ export default {
                                 name: element.name,
                                 path: element.path,
                                 qn: element.qn,
-                                avgOnline: max(element.onlinesPerMin),
+                                avgOnline: onLinePerHourOptimized(element.onlinesPerMin),
                                 startT: element.startT,
                                 druT: element.endT&&element.startT?((Date.parse(element.endT)-Date.parse(element.startT))/1000/60).toFixed(2)+"min":"",
                                 hot: (result2.length>0?result2:undefined)
