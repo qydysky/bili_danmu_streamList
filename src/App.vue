@@ -135,9 +135,9 @@ export default {
                 }
 
                 // 3. Invert weights and apply weighted average
-                let distanceSum = Math.sumPrecise(diff);
+                let distanceSum = diff.reduce((a, b) => a + b);
                 let invertedDiff = diff.map(d => distanceSum - d);
-                let invertedSum = Math.sumPrecise(invertedDiff);
+                let invertedSum = invertedDiff.reduce((a, b) => a + b);
 
                 if (invertedSum === 0) return array[0];
 
