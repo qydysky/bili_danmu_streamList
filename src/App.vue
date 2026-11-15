@@ -1,11 +1,15 @@
 <script>
+import { Sunny, Moon } from '@element-plus/icons-vue'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import Axios from 'axios'
-import { setupCache } from 'axios-cache-interceptor';
-import { nextTick, reactive } from 'vue';
-import {ElSelect,ElOption,ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem} from 'element-plus';
+import { setupCache } from 'axios-cache-interceptor'
+import { nextTick, reactive } from 'vue'
+import { useDark, useToggle } from '@vueuse/core'
+import {ElSelect,ElOption,ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem,ElRadioGroup,ElRadioButton,ElIcon} from 'element-plus';
 export default {
     components:{
-        ElSelect,ElOption,ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem
+        ElSelect,ElOption,ElSpace,ElText,ElDescriptions,ElDescriptionsItem,ElLink,ElPopover,ElButton,ElDatePicker,ElInput,ElTable,ElTableColumn,ElForm,ElFormItem,ElRadioGroup,ElRadioButton,ElIcon
+        ,Sunny, Moon
     },
     data() {
         return {
@@ -21,6 +25,7 @@ export default {
             }),
             defaultDate: new Date(),
             hadSave: false,
+            isDark: useDark(),
             sortOption: [
                 {
                     value: 'startTAsc',
@@ -45,6 +50,10 @@ export default {
         },
     },
     methods: {
+        toggleDark() {
+            useToggle(this.isDark)
+            localStorage.setItem("isDark",this.isDark?'Y':'N')
+        },
         saveSearch() {
             let para = new URL(window.location.href).searchParams.get("ref");
             para = para?para:""
@@ -298,6 +307,10 @@ export default {
             this.form.recDate = ''
             this.onSubmit()
         },
+        hasDark(){
+            this.isDark = localStorage.getItem("isDark")=='Y'
+            this.toggleDark()
+        },
         hasContinue(){
             let para = new URL(window.location.href).searchParams.get("ref");
             para = para?para:""
@@ -324,6 +337,7 @@ export default {
         }
     },
     mounted() {
+        this.hasDark()
         this.hasContinue()
         this.getSearch()
         this.loadFileList()
@@ -388,6 +402,16 @@ export default {
                 <el-button @click="onSubmit">查询</el-button>
                 <el-button @click="onReset">重置</el-button>
                 <el-button id="continue" v-show="hadSave" @click="onContinue">继续上次</el-button>
+            </el-form-item>
+            <el-form-item label="">
+                <el-radio-group v-model="isDark" @change="toggleDark" text-color="#fff" fill="#909399">
+                    <el-radio-button :value="Boolean(false)">
+                        <el-icon><Sunny /></el-icon>
+                    </el-radio-button>
+                    <el-radio-button :value="Boolean(true)">
+                        <el-icon><Moon /></el-icon>
+                    </el-radio-button>
+                </el-radio-group> 
             </el-form-item>
         </el-form>
         <el-table 
